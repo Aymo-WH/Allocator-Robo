@@ -2,5 +2,4 @@ pandas
 numpy
 scipy
 yfinance
-# dashboard (added in a later phase)
-# streamlit
+streamlit

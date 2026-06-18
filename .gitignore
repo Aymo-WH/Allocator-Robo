@@ -12,6 +12,13 @@ venv/
 # local operating doc (not for the repo)
 CLAUDE.md
 
+# YOUR FINANCIAL DATA — never commit
+data/ledger.json
+ledger.json
+
+# streamlit secrets (password, etc.)
+.streamlit/secrets.toml
+
 # os
 .DS_Store
 Thumbs.db

@@ -59,6 +59,33 @@ def tier_returns(prices, candidates, target_vol_annual, halflife=20, vol_cap=1.0
     return tier_ret.fillna(0.0), avg_exposure
 
 
+def latest_target_weights(prices, cfg):
+    """
+    Today's target weight for each PRODUCT as a fraction of the whole pool, using
+    the same math as the backtest evaluated at the last available date:
+        weight = policy_weight(tier) x inverse_vol_split x vol_overlay_sizing
+    A product appearing in several tiers gets its weights summed (you hold one
+    line of it). Weights sum to <= 1.0; the remainder is the intended cash buffer
+    (the overlay deliberately holds cash when forecast vol runs hot).
+
+    Returns (weights: dict product->weight, cash_weight: float).
+    """
+    ov = cfg["vol_overlay"]
+    hl, cap = ov["halflife_days"], ov["vol_cap"]
+    weights = {}
+    for tier in cfg["tiers"]:
+        have = [c for c in tier["candidates"] if c in prices.columns]
+        if not have:
+            continue
+        rets = prices[have].pct_change()
+        cross = inverse_vol_weights(rets, hl).iloc[-1]
+        for c in have:
+            pos = overlay_weight(rets[c], tier["target_vol_annual"], hl, cap).iloc[-1]
+            weights[c] = weights.get(c, 0.0) + float(tier["policy_weight"]) * float(cross[c]) * float(pos)
+    cash_weight = max(0.0, 1.0 - sum(weights.values()))
+    return weights, cash_weight
+
+
 def build_all_tiers(prices, cfg):
     """
     Returns a DataFrame (index = dates, columns = tier names) of per-tier daily

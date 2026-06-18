@@ -39,19 +39,32 @@ to make a bad year good.
 config/config.json   5 tiers, goal, contributions, rebalancing rules, universe
 src/data.py          fetch daily adjusted-close for the candidate universe
 src/vol_overlay.py    EWMA vol forecast + inverse-vol position sizing (no look-ahead)
-src/tiers.py         per-tier return streams (inverse-vol split x vol sizing)
+src/tiers.py         per-tier return streams + today's target weights
 src/rebalance.py     dollar-level pool sim: contributions + drift-band rebalancing
-src/goal.py          forward Monte Carlo goal projection (block bootstrap)
-src/backtest.py      orchestrates + judges vs same-cash SPY DCA benchmark
+src/goal.py          forward Monte Carlo goal projection (currency-aware)
+src/backtest.py      orchestrates + judges vs same-cash benchmark DCA
+src/account.py       ADVISORY ledger: deposits, trades, holdings, order generation
+app.py               Streamlit account manager (config editor + deposit/allocate UI)
 ```
 
-## Quick start
+## Quick start — research backtest
 
 ```bash
 pip install -r requirements.txt
 python src/data.py     --config config/config.json   # fetch prices -> data/prices.csv
 python src/backtest.py --config config/config.json   # run + report
 ```
+
+## Run the account-manager app
+
+```bash
+streamlit run app.py
+```
+
+Advisory only — it never touches your money. You deposit into your IBKR account;
+the app tells you exactly what to buy, you execute there, and you record the
+fills. Your ledger (`data/ledger.json`) is private and gitignored. To host it,
+see [DEPLOY.md](DEPLOY.md) (private repo + password + durable storage).
 
 ## Roadmap
 
