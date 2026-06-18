@@ -37,35 +37,35 @@
       "name": "T1_core",
       "label": "Conservative growth (World + S&P500)",
       "policy_weight": 0.30,
-      "target_vol_annual": 0.10,
+      "target_vol_annual": 0.18,
       "candidates": ["IWDA.L", "CSPX.L"]
     },
     {
       "name": "T2_balanced",
       "label": "Balanced growth (US + Emerging Mkts)",
       "policy_weight": 0.25,
-      "target_vol_annual": 0.13,
+      "target_vol_annual": 0.20,
       "candidates": ["CSPX.L", "EIMI.L"]
     },
     {
       "name": "T3_growth",
       "label": "Growth (Nasdaq-100 + S&P500)",
       "policy_weight": 0.20,
-      "target_vol_annual": 0.16,
+      "target_vol_annual": 0.22,
       "candidates": ["CNDX.L", "CSPX.L"]
     },
     {
       "name": "T4_aggressive",
       "label": "Aggressive (US Tech sector + Nasdaq)",
       "policy_weight": 0.15,
-      "target_vol_annual": 0.20,
+      "target_vol_annual": 0.24,
       "candidates": ["IUIT.L", "CNDX.L"]
     },
     {
       "name": "T5_speculative",
       "label": "High-beta (World Small Cap + EM)",
       "policy_weight": 0.10,
-      "target_vol_annual": 0.24,
+      "target_vol_annual": 0.21,
       "candidates": ["WSML.L", "EIMI.L"]
     }
   ],
