@@ -15,7 +15,7 @@ import argparse
 
 import pandas as pd
 
-from data import load_config
+from data import load_config, fx_symbol
 from tiers import build_all_tiers
 from rebalance import simulate_pool, benchmark_dca
 from vol_overlay import annualized_sharpe, max_drawdown
@@ -83,20 +83,44 @@ def main():
           "(its job).")
     print(f"      Drawdown shallower than benchmark? {'YES' if dd_better else 'NO'}")
 
-    # 4) forward goal projection from today's value
-    print("\n" + "=" * 78)
-    print("GOAL PROJECTION (forward Monte Carlo, block bootstrap of allocator returns)")
-    print("=" * 78)
-    proj = project_goal(pool_ret, cfg, current_value=pool_val.iloc[-1],
-                        n_paths=args.mc_paths)
+    # 4) forward goal projection — currency-aware, conservative-drift scenarios
     g = cfg["goal"]
-    print(f"Goal: {_fmt_money(proj['target'])} in {proj['horizon_years']} yrs"
-          f"  |  contributing {_fmt_money(g['monthly_contribution'])}/mo"
-          f"  |  starting from {_fmt_money(pool_val.iloc[-1])}")
-    print(f"  Probability of hitting goal : {proj['p_hit_goal']:.0%}")
-    print(f"  Median outcome             : {_fmt_money(proj['median'])}")
-    print(f"  Likely range (P10-P90)     : {_fmt_money(proj['p10'])} - {_fmt_money(proj['p90'])}")
-    print(f"  Total you'd contribute     : {_fmt_money(proj['total_contributed'])}")
+    cur = g.get("base_currency", "USD")
+    fx_returns = None
+    fx_col = fx_symbol(cfg)
+    if fx_col and fx_col in prices.columns:
+        fx_returns = prices[fx_col].pct_change().dropna()
+
+    # Project FORWARD from your real current capital (starting_capital), using the
+    # strategy's empirical volatility. Do NOT start from the backtest's terminal
+    # value — that would assume you'd already been invested since the data began.
+    start_today = float(g["starting_capital"])
+    proj = project_goal(pool_ret, cfg, current_value=start_today,
+                        fx_returns=fx_returns, n_paths=cfg["projection"]["n_paths"])
+
+    print("\n" + "=" * 78)
+    print("GOAL PROJECTION (forward from today's capital) | drift = ASSUMPTION, vol = DATA")
+    print("=" * 78)
+    print(f"Goal: {cur} {g['target_amount']:,.0f} in {g['horizon_years']} yrs"
+          f"  |  contributing {cur} {g['monthly_contribution']:,.0f}/mo"
+          f"  |  starting from {cur} {start_today:,.0f}")
+    fx_note = ("ON (USD/MYR vol modeled, drift neutral)" if proj["_fx_modeled"]
+               else "OFF")
+    print(f"FX risk modeling: {fx_note}\n")
+    print(f"  {'Scenario':16s}{'assumed ann. return':>22s}{'P(hit goal)':>14s}"
+          f"{'median':>16s}{'P10 - P90':>26s}")
+    print("  " + "-" * 92)
+    scen = cfg["projection"]["annual_return_scenarios"]
+    for name in scen:
+        r = proj[name]
+        rng = f"{cur} {r['p10']:,.0f} - {r['p90']:,.0f}"
+        print(f"  {name:16s}{scen[name]:>21.0%}{r['p_hit_goal']:>14.0%}"
+              f"{cur+' '+format(r['median'], ',.0f'):>16s}{rng:>26s}")
+    print("  " + "-" * 92)
+    print(f"  Total you'd contribute over the horizon: "
+          f"{cur} {proj['base']['total_contributed']:,.0f}")
+    print("Read: trust the CONSERVATIVE/BASE rows for planning; the optimistic row is "
+          "an upside case, not an expectation.")
     print("=" * 78)
 
 

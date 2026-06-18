@@ -3,11 +3,21 @@
 
   "goal": {
     "name": "Primary growth goal",
-    "target_amount": 200000,
-    "currency": "USD",
+    "base_currency": "MYR",
+    "target_amount": 1000000,
     "horizon_years": 10,
-    "starting_capital": 20000,
-    "monthly_contribution": 1000
+    "starting_capital": 50000,
+    "monthly_contribution": 2000,
+    "_comment": "PLACEHOLDERS — edit to your real numbers. All amounts are in base_currency (MYR), the currency you fund in and measure the goal in. Assets are USD-denominated; the projector converts via the USD/MYR model below."
+  },
+
+  "projection": {
+    "annual_return_scenarios": { "conservative": 0.04, "base": 0.07, "optimistic": 0.10 },
+    "model_fx": true,
+    "fx_pair": "USDMYR",
+    "fx_drift_annual": 0.0,
+    "n_paths": 5000,
+    "_comment": "Drift is an ASSUMPTION (the short bull-biased sample's own mean is not trustworthy); volatility comes from the data. fx_drift_annual=0.0 = no view on the ringgit. Reported as a conservative/base/optimistic spread."
   },
 
   "rebalance": {

@@ -22,12 +22,23 @@ def load_config(path):
         return json.load(f)
 
 
+def fx_symbol(cfg):
+    """yfinance symbol for the FX pair (e.g. 'USDMYR' -> 'USDMYR=X'), or None."""
+    proj = cfg.get("projection", {})
+    if proj.get("model_fx") and proj.get("fx_pair"):
+        return f"{proj['fx_pair']}=X"
+    return None
+
+
 def all_tickers(cfg):
-    """Every unique ticker referenced anywhere in the config."""
+    """Every unique ticker referenced anywhere in the config (incl. the FX pair)."""
     tickers = set()
     for tier in cfg["tiers"]:
         tickers.update(tier["candidates"])
     tickers.add(cfg["benchmark"]["ticker"])
+    fx = fx_symbol(cfg)
+    if fx:
+        tickers.add(fx)
     return sorted(tickers)
 
 
