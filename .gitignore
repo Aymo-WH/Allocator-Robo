@@ -1,0 +1,17 @@
+# data is regenerated from yfinance; don't commit it
+data/
+*.csv
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# local operating doc (not for the repo)
+CLAUDE.md
+
+# os
+.DS_Store
+Thumbs.db

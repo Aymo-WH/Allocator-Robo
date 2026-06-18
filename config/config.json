@@ -1,0 +1,73 @@
+{
+  "_comment": "Goal-Allocator config. 5 risk tiers, all growth-and-above (no internal bond/cash ballast; your treasury bills + EFP are the external ballast). 'policy_weight' = target share of the managed pool for each tier; they must sum to 1.0. Within a tier, candidates are weighted by inverse-vol (risk-parity-lite) and each position is sized by the vol overlay toward 'target_vol'. The robo never PREDICTS which candidate wins; it weights + rebalances a basket you approve.",
+
+  "goal": {
+    "name": "Primary growth goal",
+    "target_amount": 200000,
+    "currency": "USD",
+    "horizon_years": 10,
+    "starting_capital": 20000,
+    "monthly_contribution": 1000
+  },
+
+  "rebalance": {
+    "frequency_days": 63,
+    "drift_band_pct": 0.25,
+    "_comment": "Rebalance every ~quarter (63 trading days) OR when any tier drifts >25% relative from its policy weight, whichever triggers first. New contributions are deployed to underweight tiers (free rebalancing)."
+  },
+
+  "data": {
+    "lookback_days": 2000,
+    "train_frac": 0.6,
+    "_comment": "Daily adjusted-close. train_frac fixes target_vol from the train split only (no leakage)."
+  },
+
+  "tiers": [
+    {
+      "name": "T1_core",
+      "label": "Conservative growth",
+      "policy_weight": 0.30,
+      "target_vol_annual": 0.10,
+      "candidates": ["SPY", "VTI", "SCHD"]
+    },
+    {
+      "name": "T2_balanced",
+      "label": "Balanced growth",
+      "policy_weight": 0.25,
+      "target_vol_annual": 0.14,
+      "candidates": ["SPY", "QQQ", "VEA"]
+    },
+    {
+      "name": "T3_growth",
+      "label": "Growth",
+      "policy_weight": 0.20,
+      "target_vol_annual": 0.20,
+      "candidates": ["QQQ", "XLK", "SMH"]
+    },
+    {
+      "name": "T4_aggressive",
+      "label": "Aggressive / thematic",
+      "policy_weight": 0.15,
+      "target_vol_annual": 0.28,
+      "candidates": ["SMH", "ARKK", "XLE"]
+    },
+    {
+      "name": "T5_speculative",
+      "label": "Speculative",
+      "policy_weight": 0.10,
+      "target_vol_annual": 0.40,
+      "candidates": ["TQQQ", "BTC-USD", "ETH-USD"]
+    }
+  ],
+
+  "vol_overlay": {
+    "halflife_days": 20,
+    "vol_cap": 1.0,
+    "_comment": "Per-position weight w = clip(target_vol / forecast_vol, 0, vol_cap). vol_cap=1.0 = long-only, no leverage. forecast_vol is EWMA realized vol shifted 1 day (no look-ahead)."
+  },
+
+  "benchmark": {
+    "ticker": "SPY",
+    "_comment": "Static buy-and-hold benchmark to judge the allocator against. Success = comparable Sharpe with shallower drawdown + on-track goal probability."
+  }
+}
