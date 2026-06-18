@@ -1,5 +1,5 @@
 {
-  "_comment": "Goal-Allocator config. 5 risk tiers, all growth-and-above (no internal bond/cash ballast; your treasury bills + EFP are the external ballast). 'policy_weight' = target share of the managed pool for each tier; they must sum to 1.0. Within a tier, candidates are weighted by inverse-vol (risk-parity-lite) and each position is sized by the vol overlay toward 'target_vol'. The robo never PREDICTS which candidate wins; it weights + rebalances a basket you approve.",
+  "_comment": "Goal-Allocator config. 5 risk tiers, all growth-and-above (no internal bond/cash ballast; your treasury bills + EFP are the external ballast). UNIVERSE = Irish-domiciled, USD-denominated, ACCUMULATING UCITS ETFs (LSE '.L' lines) for a Malaysia-resident: 15% dividend withholding (vs 30% US-listed) and no US estate-tax exposure. No leveraged/crypto (no clean UCITS equivalent) by design choice. Access via Interactive Brokers. 'policy_weight' = target share of the pool per tier (sum=1.0). Within a tier, candidates are inverse-vol weighted and each position is vol-sized toward 'target_vol'. The robo never PREDICTS which candidate wins; it weights + rebalances a basket you approve.",
 
   "goal": {
     "name": "Primary growth goal",
@@ -35,38 +35,38 @@
   "tiers": [
     {
       "name": "T1_core",
-      "label": "Conservative growth",
+      "label": "Conservative growth (World + S&P500)",
       "policy_weight": 0.30,
       "target_vol_annual": 0.10,
-      "candidates": ["SPY", "VTI", "SCHD"]
+      "candidates": ["IWDA.L", "CSPX.L"]
     },
     {
       "name": "T2_balanced",
-      "label": "Balanced growth",
+      "label": "Balanced growth (US + Emerging Mkts)",
       "policy_weight": 0.25,
-      "target_vol_annual": 0.14,
-      "candidates": ["SPY", "QQQ", "VEA"]
+      "target_vol_annual": 0.13,
+      "candidates": ["CSPX.L", "EIMI.L"]
     },
     {
       "name": "T3_growth",
-      "label": "Growth",
+      "label": "Growth (Nasdaq-100 + S&P500)",
       "policy_weight": 0.20,
-      "target_vol_annual": 0.20,
-      "candidates": ["QQQ", "XLK", "SMH"]
+      "target_vol_annual": 0.16,
+      "candidates": ["CNDX.L", "CSPX.L"]
     },
     {
       "name": "T4_aggressive",
-      "label": "Aggressive / thematic",
+      "label": "Aggressive (US Tech sector + Nasdaq)",
       "policy_weight": 0.15,
-      "target_vol_annual": 0.28,
-      "candidates": ["SMH", "ARKK", "XLE"]
+      "target_vol_annual": 0.20,
+      "candidates": ["IUIT.L", "CNDX.L"]
     },
     {
       "name": "T5_speculative",
-      "label": "Speculative",
+      "label": "High-beta (World Small Cap + EM)",
       "policy_weight": 0.10,
-      "target_vol_annual": 0.40,
-      "candidates": ["TQQQ", "BTC-USD", "ETH-USD"]
+      "target_vol_annual": 0.24,
+      "candidates": ["WSML.L", "EIMI.L"]
     }
   ],
 
@@ -77,7 +77,7 @@
   },
 
   "benchmark": {
-    "ticker": "SPY",
-    "_comment": "Static buy-and-hold benchmark to judge the allocator against. Success = comparable Sharpe with shallower drawdown + on-track goal probability."
+    "ticker": "CSPX.L",
+    "_comment": "Static buy-and-hold benchmark (UCITS S&P 500, same universe/currency as the holdings). Success = comparable Sharpe with shallower drawdown + on-track goal probability."
   }
 }

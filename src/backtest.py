@@ -65,8 +65,9 @@ def main():
         print(f"  {n:16s} {tier['label']:22s} policy {tier['policy_weight']:.0%}"
               f"   avg_expo {expo[n]:.2f}   tier Sharpe {annualized_sharpe(tier_rets[n]):+.2f}")
 
+    bench_label = f"{cfg['benchmark']['ticker']} DCA"
     print("\n" + "-" * 78)
-    print(f"{'':22s}{'ALLOCATOR':>16s}{'SPY DCA (bench)':>18s}")
+    print(f"{'':22s}{'ALLOCATOR':>16s}{bench_label:>18s}")
     print("-" * 78)
     print(f"{'Final value':22s}{_fmt_money(pool_val.iloc[-1]):>16s}"
           f"{_fmt_money(bench_val.iloc[-1]):>18s}")
@@ -79,7 +80,7 @@ def main():
     print(f"{'Rebalancing fees':22s}{_fmt_money(sim['fees_paid']):>16s}{'-':>18s}")
     print("-" * 78)
     dd_better = max_drawdown(pool_ret) > max_drawdown(bench_ret)
-    print("Read: the allocator should show a SHALLOWER drawdown than SPY DCA "
+    print(f"Read: the allocator should show a SHALLOWER drawdown than {bench_label} "
           "(its job).")
     print(f"      Drawdown shallower than benchmark? {'YES' if dd_better else 'NO'}")
 
